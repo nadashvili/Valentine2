@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ინასთვის ❤️</title>
+    <link href="https://fonts.googleapis.com/css2?family=FiraGO:wght@300;400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    
+    <style>
+        @font-face {
+            font-family: 'MyCustomFont';
+            src: url('gugeshashvili_8_mthavruli_bold-52145488073.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+        * { font-family: 'MyCustomFont', sans-serif; }
+        
+        body {
+            background-color: #0a0a0a;
+            color: #ffffff;
+            overflow-x: hidden;
+        }
+
+        /* Preloader */
+        #preloader {
+            position: fixed;
+            inset: 0;
+            background: #000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.8s ease;
+        }
+
+        .heart-pulse {
+            width: 50px;
+            height: 50px;
+            background: #ff4d4d;
+            position: relative;
+            transform: rotate(-45deg);
+            animation: pulse 1.2s infinite;
+        }
+
+        .heart-pulse::before, .heart-pulse::after {
+            content: "";
+            width: 50px;
+            height: 50px;
+            background: #ff4d4d;
+            border-radius: 50%;
+            position: absolute;
+        }
+
+        .heart-pulse::before { top: -25px; left: 0; }
+        .heart-pulse::after { left: 25px; top: 0; }
+
+        @keyframes pulse {
+            0% { transform: rotate(-45deg) scale(1); }
+            50% { transform: rotate(-45deg) scale(1.2); }
+            100% { transform: rotate(-45deg) scale(1); }
+        }
+
+        /* Gatekeeper */
+        #gatekeeper {
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(circle at center, #FF000022 0%, #000 100%);
+            z-index: 9998;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        .glow-btn {
+            background: transparent;
+            border: 2px solid #ff4d4d;
+            color: #ff4d4d;
+            padding: 1rem 2.5rem;
+            border-radius: 50px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            box-shadow: 0 0 15px rgba(255, 77, 77, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .glow-btn:hover {
+            background: #ff4d4d;
+            color: white;
+            box-shadow: 0 0 30px rgba(255, 77, 77, 0.5);
+        }
+
+        /* Scroll Arrow Animation */
+        .scroll-arrow {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 1s ease;
+            z-index: 20;
+        }
+
+        .scroll-arrow.visible {
+            opacity: 1;
+        }
+
+        .bounce {
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+
+        /* Reveal Effect */
+        .reveal {
+            opacity: 0;
+            filter: blur(8px);
+            transform: translateY(20px);
+            transition: all 0.8s ease-out;
+        }
+
+        .reveal.active {
+            opacity: 1;
+            filter: blur(0);
+            transform: translateY(0);
+        }
+
+        /* Polaroid Grid */
+        .polaroid {
+            background: white;
+            padding: 10px 10px 40px 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            transition: transform 0.4s ease;
+        }
+        .polaroid img { width: 100%; aspect-ratio: 3/4; object-fit: cover; }
+        .polaroid p { color: #333; text-align: center; margin-top: 15px; font-weight: 700; font-size: 1.2rem; }
+        .polaroid:hover { transform: scale(1.05) rotate(0deg) !important; z-index: 5; }
+
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-thumb { background: #ff4d4d; }
+    </style>
+</head>
+<body>
+
+    <div id="preloader">
+        <div class="heart-pulse"></div>
+        <p class="mt-8 text-sm tracking-widest text-gray-400">იტვირთება სიყვარულით...</p>
+    </div>
+
+    <div id="gatekeeper">
+        <h2 class="text-xl font-light mb-8">ინა, მზად ხარ?</h2>
+        <button class="glow-btn" onclick="unlockContent()">დააჭირე აქ</button>
+    </div>
+
+    <main id="main-content" class="hidden">
+        <section class="h-screen flex flex-col items-center justify-center relative px-6">
+            <div class="absolute inset-0 bg-gradient-to-b from-transparent to-black z-0"></div>
+            <h1 id="typewriter" class="text-xl md:text-3xl font-light text-center leading-relaxed z-10 max-w-2xl"></h1>
+            
+            <div id="scroll-indicator" class="scroll-arrow">
+                <svg class="w-8 h-8 text-red-500 bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+                </svg>
+            </div>
+        </section>
+
+        <section class="py-24 bg-zinc-950 px-6">
+            <div class="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-12 text-center">
+                <div class="reveal">
+                    <span class="text-6xl font-bold text-red-500 counter" data-target="86">0</span>
+                    <p class="text-gray-400 mt-2">დღე ერთად</p>
+                </div>
+                <div class="reveal">
+                    <span class="text-6xl font-bold text-red-500 counter" data-target="60">0</span>
+                    <p class="text-gray-400 mt-2">სტრიკი</p>
+                </div>
+                <div class="reveal">
+                    <span class="text-6xl font-bold text-red-500">∞</span>
+                    <p class="text-gray-400 mt-2">სიყვარული</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="py-24 bg-black px-6">
+            <div class="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-10">
+                <div class="polaroid reveal" style="transform: rotate(-3deg)">
+                    <img src="https://i.postimg.cc/GtwYRWvR/IMG_20260212_WA0000.jpg" alt="1">
+                    <p>ჩემი საყვარელი ფოტო</p>
+                </div>
+                <div class="polaroid reveal" style="transform: rotate(2deg)">
+                    <img src="https://i.postimg.cc/wM8JzCLS/IMG_20260212_WA0001.jpg" alt="2">
+                    <p>❤️ ❤️ ❤️</p>
+                </div>
+                <div class="polaroid reveal" style="transform: rotate(-2deg)">
+                    <img src="https://i.postimg.cc/T1pS8Wj7/IMG-20260212-WA0004.jpg" alt="3">
+                    <p>ჩვენი საყვარელი დღე</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="py-24 bg-zinc-950 px-6">
+            <div class="max-w-md mx-auto bg-black p-8 rounded-2xl border border-zinc-800 reveal">
+                <h3 class="text-xl text-center mb-8">რა ხარ ჩემი?</h3>
+                <div class="space-y-4">
+                    <button onclick="checkQuiz(this, 'კობრა')" class="w-full p-4 rounded-xl border border-zinc-800 hover:border-red-500 transition-all">კობრა</button>
+                    <button onclick="checkQuiz(this, 'სპლიყვი')" class="w-full p-4 rounded-xl border border-zinc-800 hover:border-red-500 transition-all">სპლიყვი</button>
+                    <button onclick="checkQuiz(this, 'კოალა')" class="w-full p-4 rounded-xl border border-zinc-800 hover:border-red-500 transition-all">კოალა</button>
+                </div>
+                <p id="quiz-msg" class="hidden mt-6 text-center text-red-500 font-bold animate-bounce">კიიი ძეეტკკ</p>
+            </div>
+        </section>
+
+        <section class="py-32 bg-black px-6 text-center">
+            <p class="max-w-2xl mx-auto text-lg md:text-2xl italic font-light leading-loose reveal">
+                "ინა, შენ ხარ ჩემი ყველაზე დიდი საჩუქარი. ყოველი დღე შენთან ერთად დღესასწაულია. მიყვარხარ უსასრულოდ!"
+            </p>
+            <p class="mt-6 text-red-500 font-bold reveal">- შენი ნიკუ</p>
+        </section>
+
+        <footer class="py-20 bg-zinc-950 text-center px-6">
+            <a href="https://www.instagram.com/cercva_07?igsh=dGlyaWg1bHFiZGxl"  class="glow-btn inline-block no-underline">დამირეკე ახლავე</a>
+            <p class="mt-12 text-zinc-600 text-xs tracking-widest uppercase">Created for Ina by Niku — 2026</p>
+        </footer>
+    </main>
+
+    <audio id="bg-music" loop>
+        <source src="https://www.dropbox.com/scl/fi/t2yvmgi0ycpyy9cg6g2ay/Sting-Shape-of-My-Heart-Leon.mp3?rlkey=jjrk4boceqxtmvbeiptxqtez6&st=1lvspad3&dl=1" type="audio/mpeg">
+    </audio>
+
+    <script>
+        // Preloader Logic
+        window.onload = () => {
+            setTimeout(() => {
+                document.getElementById('preloader').style.opacity = '0';
+                setTimeout(() => {
+                    document.getElementById('preloader').style.display = 'none';
+                    document.getElementById('gatekeeper').style.display = 'flex';
+                }, 800);
+            }, 1500);
+        };
+
+        // Unlock Content
+        function unlockContent() {
+            const music = document.getElementById('bg-music');
+            music.volume = 0.4;
+            music.play();
+            
+            document.getElementById('gatekeeper').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('gatekeeper').style.display = 'none';
+                document.getElementById('main-content').classList.remove('hidden');
+                startTypewriter();
+                initReveal();
+            }, 600);
+        }
+
+        // Typewriter + Arrow Trigger
+        function startTypewriter() {
+            const text = "ინა, მინდა რომ ეს დღე სხვანაირად დაგამახსოვრდეს...";
+            let i = 0;
+            const el = document.getElementById('typewriter');
+            const arrow = document.getElementById('scroll-indicator');
+            
+            function type() {
+                if (i < text.length) {
+                    el.innerHTML += text.charAt(i);
+                    i++;
+                    setTimeout(type, 90);
+                } else {
+                    // როდესაც ტექსტის წერა დასრულდება, გამოჩნდეს ისარი
+                    setTimeout(() => {
+                        arrow.classList.add('visible');
+                    }, 500);
+                }
+            }
+            type();
+        }
+
+        // Reveal & Counters Logic
+        function initReveal() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('active');
+                        if (entry.target.querySelector('.counter')) {
+                            const c = entry.target.querySelector('.counter');
+                            animateCounter(c);
+                        }
+                    }
+                });
+            }, { threshold: 0.1 });
+            document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+        }
+
+        function animateCounter(el) {
+            if (el.dataset.done) return;
+            const target = +el.dataset.target;
+            let current = 0;
+            const step = target / 50;
+            const update = () => {
+                current += step;
+                if (current < target) {
+                    el.innerText = Math.floor(current);
+                    requestAnimationFrame(update);
+                } else {
+                    el.innerText = target;
+                    el.dataset.done = "true";
+                }
+            };
+            update();
+        }
+
+        // Quiz Logic
+        function checkQuiz(btn, val) {
+            if (val === 'სპლიყვი') {
+                document.getElementById('quiz-msg').classList.remove('hidden');
+                confetti({ 
+                    particleCount: 150, 
+                    spread: 70, 
+                    origin: { y: 0.6 }, 
+                    colors: ['#ff4d4d', '#ffffff'] 
+                });
+                document.querySelectorAll('button').forEach(b => b.disabled = true);
+            } else {
+                btn.style.borderColor = 'white';
+                setTimeout(() => btn.style.borderColor = '', 500);
+            }
+        }
+    </script>
+</body>
+</html>
